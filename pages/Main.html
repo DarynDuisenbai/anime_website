@@ -2,21 +2,78 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/main.css">
     <title>AnimeVerse</title>
 </head>
 <body>
-    <nav class="navbar">
-        <ul class="menu">
-            <li><a href="#">Главная</a></li>
-        </ul>
-        <form class="search">
-            <input type="text" placeholder="Поиск...">
-            <button type="submit">🔍</button>
-        </form>
-    </nav>
-    <section class="main">
+<nav class="navbar">
+    <ul class="menu">
+        <li><a href="#">Главная</a></li>
+    </ul>
+    <form class="search" onsubmit="return false;">
+        <input type="text" placeholder="Поиск...">
+        <button type="submit">🔍</button>
+    </form>
+</nav>
 
-    </section>
+<section class="top_anime">
+    <h2 class="section-title">Топ Аниме</h2>
+    <div id="anime-container" class="anime-grid">
+        <div class="loading">Загрузка...</div>
+    </div>
+</section>
+
+<section class="top_manga">
+</section>
+
+<script>
+    const API_URL = 'https://api.jikan.moe/v4/top/anime?limit=25';
+    const container = document.getElementById('anime-container');
+
+    async function fetchTopAnime() {
+        try {
+            const response = await fetch(API_URL);
+
+            if (!response.ok) {
+                throw new Error('Ошибка загрузки данных');
+            }
+
+            const data = await response.json();
+            displayAnime(data.data);
+        } catch (error) {
+            container.innerHTML = `<div class="error">Не удалось загрузить аниме. Попробуйте позже.</div>`;
+            console.error('Error:', error);
+        }
+    }
+
+    function displayAnime(animeList) {
+        container.innerHTML = '';
+
+        animeList.forEach(anime => {
+            const card = document.createElement('div');
+            card.className = 'anime-card';
+
+            card.innerHTML = `
+                <img src="${anime.images.jpg.large_image_url}" alt="${anime.title}">
+                <div class="anime-info">
+                    <div class="anime-title">${anime.title}</div>
+                    <div class="anime-meta">
+                        <span>${anime.type || 'N/A'}</span>
+                        <span class="anime-score">⭐ ${anime.score || 'N/A'}</span>
+                    </div>
+                </div>
+            `;
+
+            card.addEventListener('click', () => {
+                window.open(anime.url, '_blank');
+            });
+
+            container.appendChild(card);
+        });
+    }
+
+    fetchTopAnime();
+</script>
 </body>
 </html>
